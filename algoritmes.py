@@ -1,4 +1,4 @@
-import math
+
 
 from graphlib import Graph, distance
 
@@ -7,12 +7,13 @@ def getHeuristic(g, toDo, maxWeight, weight=0):
     length = 0
     if len(toDo) == 0:
         return 0
+
     for v in toDo:
         length += distance(v, g.root)
         weight += v.weight
     averageOrderWeight = weight/len(toDo)
-    averagePerRound = math.floor(maxWeight/averageOrderWeight)
-    return length/(math.ceil(weight/averagePerRound))
+    averagePerRound = maxWeight/averageOrderWeight
+    return length/(weight/averagePerRound)
 
 
 def getRoute(g :Graph, maxWeight):
@@ -46,14 +47,13 @@ def getRoute(g :Graph, maxWeight):
 
     return dist
 
-
-def printRoute(g: Graph):
+def extractRoute(g: Graph):
     location = g.root
-    print((g.root.x, g.root.y), 0)
+    route = [((g.root.x, g.root.y), 0)]
     toDo = set(g.V())
     nbs = g.getNeigbourList()
     weight = 0
-    while toDo:
+    while toDo or location != g.root:
         neighbours = [x for x in nbs[location] if x in toDo]
         if len(neighbours) == 0:
             location = g.root
@@ -63,6 +63,12 @@ def printRoute(g: Graph):
             weight = 0
         else:
             weight += location.weight
-        print((location.x, location.y), weight)
+        route.append(((location.x, location.y), weight))
         if location != g.root:
             toDo.remove(location)
+    return route
+
+
+def printRoute(g: Graph):
+    for location in extractRoute(g):
+        print(location)
